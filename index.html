@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Baby Shower · Franco Javier</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Caveat:wght@400;600;700&family=Lato:wght@300;400&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; min-height: 100%;
+      background: #e8ddd0;
+      font-family: 'Lato', sans-serif;
+    }
+    body { display: flex; align-items: center; justify-content: center; padding: 20px 12px; }
+    #root { width: 100%; display: flex; justify-content: center; }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes floatGently {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-7px); }
+    }
+    @keyframes shimmerSoft {
+      0%, 100% { opacity: 0.7; }
+      50%       { opacity: 1; }
+    }
+    @keyframes beeWander {
+      0%   { transform: translate(0,0) rotate(-5deg); }
+      30%  { transform: translate(5px,-10px) rotate(5deg); }
+      60%  { transform: translate(-4px,-6px) rotate(-3deg); }
+      100% { transform: translate(0,0) rotate(-5deg); }
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+
+
+
+
+const { useState } = React;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "babyName": "Franco Javier",
+  "mamaNombre": "Karla",
+  "papaNombre": "Javier",
+  "fecha": "Domingo, 21 de Junio 2026",
+  "hora": "9:30 AM",
+  "lugar": "Windsor Eventos",
+  "rsvp": "+528114975656",
+  "frase": "Qué día tan especial es hoy, porque hoy llegaste tú.",
+  "locationUrl": "https://maps.app.goo.gl/BxsNFsPFw4z7JjLh8",
+  "calendarTitle": "Baby Shower de Franco Javier",
+  "calendarFecha": "20260621",
+  "calendarHora": "0930",
+  "calendarDuracion": "180"
+} /*EDITMODE-END*/;
+
+// ── Palette ───────────────────────────────────────────────────────
+const P = {
+  cream: '#FDF8F0',
+  creamDark: '#F5EDE0',
+  tan: '#8B7355',
+  tanLight: '#C4A882',
+  honey: '#D4941A',
+  honeyLight: '#F2C96E',
+  rose: '#E8B4BC',
+  roseDark: '#C98490',
+  sage: '#9DB89A',
+  sageDark: '#6E8F6A',
+  sky: '#C2D8E4',
+  lavender: '#C4B8D4',
+  text: '#5C4A35',
+  textLight: '#9B7E62'
+};
+
+// ── Small SVG accents (watercolor-style dots, sprigs) ─────────────
+
+function Sprig({ color = P.sage, size = 28, flip = false }) {
+  return (
+    <svg width={size} height={size * 1.4} viewBox="0 0 28 39" fill="none"
+    style={{ transform: flip ? 'scaleX(-1)' : 'none', display: 'block' }}>
+      <path d="M14 38 Q14 20 14 2" stroke={color} strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M14 28 Q8 22 4 24" stroke={color} strokeWidth="1" strokeLinecap="round" fill="none" />
+      <path d="M4 24 Q7 20 11 22" stroke={color} strokeWidth="0.8" strokeLinecap="round" fill="none" opacity="0.6" />
+      <path d="M14 20 Q20 14 24 16" stroke={color} strokeWidth="1" strokeLinecap="round" fill="none" />
+      <path d="M24 16 Q21 12 17 14" stroke={color} strokeWidth="0.8" strokeLinecap="round" fill="none" opacity="0.6" />
+      <path d="M14 12 Q9 7 6 9" stroke={color} strokeWidth="1" strokeLinecap="round" fill="none" />
+    </svg>);
+
+}
+
+function FloralDot({ color = P.rose, size = 14 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 14 14" fill="none">
+      <circle cx="7" cy="4" r="2.5" fill={color} opacity="0.7" />
+      <circle cx="10" cy="7" r="2.5" fill={color} opacity="0.7" />
+      <circle cx="7" cy="10" r="2.5" fill={color} opacity="0.7" />
+      <circle cx="4" cy="7" r="2.5" fill={color} opacity="0.7" />
+      <circle cx="7" cy="7" r="2.2" fill="#FDF8F0" />
+    </svg>);
+
+}
+
+function TinyBee({ size = 22 }) {
+  return (
+    <svg width={size} height={size * 0.65} viewBox="0 0 22 14" fill="none">
+      <ellipse cx="6" cy="5" rx="5" ry="3" fill="white" opacity="0.8" transform="rotate(-15 6 5)" />
+      <ellipse cx="16" cy="5" rx="5" ry="3" fill="white" opacity="0.8" transform="rotate(15 16 5)" />
+      <ellipse cx="11" cy="9" rx="5" ry="5.5" fill="#F0B429" />
+      <rect x="6" y="7.5" width="10" height="2.5" rx="1.2" fill="#2D1F00" opacity="0.55" />
+      <rect x="6" y="10.5" width="10" height="2" rx="1" fill="#2D1F00" opacity="0.35" />
+      <circle cx="11" cy="4" r="3.5" fill="#F0B429" />
+      <circle cx="9.2" cy="3.5" r="0.8" fill="#2D1F00" />
+      <circle cx="12.8" cy="3.5" r="0.8" fill="#2D1F00" />
+    </svg>);
+
+}
+
+function DashedPath({ width = 120, flip = false }) {
+  return (
+    <svg width={width} height={32} viewBox={`0 0 ${width} 32`} fill="none"
+    style={{ transform: flip ? 'scaleX(-1)' : 'none', display: 'block' }}>
+      <path d={`M4 28 Q${width * 0.25} 4 ${width * 0.5} 16 Q${width * 0.75} 28 ${width - 4} 8`}
+      stroke={P.tanLight} strokeWidth="1" strokeDasharray="4 4" fill="none" opacity="0.5" />
+    </svg>);
+
+}
+
+function EnvelopeSVG({ size = 48, color = P.honey }) {
+  return (
+    <svg width={size} height={size * 0.75} viewBox="0 0 48 36" fill="none">
+      <rect x="1" y="1" width="46" height="34" rx="5" fill={`${color}18`} stroke={color} strokeWidth="1.5" />
+      <path d="M1 5 L24 20 L47 5" stroke={color} strokeWidth="1.5" fill="none" strokeLinejoin="round" />
+      <path d="M1 36 L16 21" stroke={color} strokeWidth="1.2" fill="none" strokeLinecap="round" />
+      <path d="M47 36 L32 21" stroke={color} strokeWidth="1.2" fill="none" strokeLinecap="round" />
+    </svg>);
+
+}
+
+function GiftSVG({ size = 48, color = P.roseDark }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 48 48" fill="none">
+      <rect x="6" y="20" width="36" height="24" rx="3" fill={`${color}18`} stroke={color} strokeWidth="1.5" />
+      <rect x="4" y="13" width="40" height="9" rx="3" fill={`${color}28`} stroke={color} strokeWidth="1.5" />
+      <rect x="21" y="13" width="6" height="31" fill={color} opacity="0.35" />
+      <rect x="4" y="16" width="40" height="3" fill={color} opacity="0.25" />
+      <ellipse cx="18" cy="9" rx="7" ry="4" fill={color} opacity="0.7" transform="rotate(-18 18 9)" />
+      <ellipse cx="30" cy="9" rx="7" ry="4" fill={color} opacity="0.7" transform="rotate(18 30 9)" />
+      <circle cx="24" cy="11" r="3.5" fill={color} />
+      <circle cx="24" cy="11" r="1.5" fill="white" opacity="0.4" />
+    </svg>);
+
+}
+
+// ── Detail row ────────────────────────────────────────────────────
+
+function DetailRow({ icon, label, value, isWhatsapp, babyName, isLocation, locationUrl, isCalendar, tweaks, invitado }) {
+  const [hovered, setHovered] = useState(false);
+
+  function buildWhatsappUrl(phone, baby) {
+    const clean = phone.replace(/[^0-9+]/g, '');
+    const who = invitado ? `Soy ${invitado}. ` : '';
+    const msg = encodeURIComponent(`¡Hola! ${who}Confirmo mi asistencia al Baby Shower de ${baby || 'el bebé'} 🍯🐝 ¡Ahí estaré!`);
+    return `https://wa.me/${clean}?text=${msg}`;
+  }
+
+  function buildIcsUrl() {
+    const t = tweaks;
+    const start = `${t.calendarFecha}T${t.calendarHora}00`;
+    const h = parseInt(t.calendarHora.slice(0, 2));
+    const m = parseInt(t.calendarHora.slice(2, 4));
+    const dur = parseInt(t.calendarDuracion || 180);
+    const endDate = new Date(
+      parseInt(t.calendarFecha.slice(0, 4)),
+      parseInt(t.calendarFecha.slice(4, 6)) - 1,
+      parseInt(t.calendarFecha.slice(6, 8)), h, m
+    );
+    endDate.setMinutes(endDate.getMinutes() + dur);
+    const pad = (n) => String(n).padStart(2, '0');
+    const end = `${endDate.getFullYear()}${pad(endDate.getMonth() + 1)}${pad(endDate.getDate())}T${pad(endDate.getHours())}${pad(endDate.getMinutes())}00`;
+    const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'BEGIN:VEVENT',
+    `DTSTART:${start}`, `DTEND:${end}`, `SUMMARY:${t.calendarTitle}`,
+    `LOCATION:${t.lugar}`, `DESCRIPTION:Baby Shower de ${t.babyName}`,
+    'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+    return 'data:text/calendar;charset=utf8,' + encodeURIComponent(ics);
+  }
+
+  const hoverColor = isWhatsapp ? '#4CAF7D' : isLocation ? '#7BA7C4' : isCalendar ? '#9B8BC4' : P.honey;
+
+  const inner =
+  <div style={{
+    display: 'flex', alignItems: 'center', gap: 14,
+    padding: '9px 12px',
+    borderRadius: 14,
+    background: hovered ? `${hoverColor}12` : 'transparent',
+    transition: 'background 0.2s ease',
+    cursor: isWhatsapp || isLocation || isCalendar ? 'pointer' : 'default'
+  }}
+  onMouseEnter={() => setHovered(true)}
+  onMouseLeave={() => setHovered(false)}
+  onTouchStart={() => setHovered(true)}
+  onTouchEnd={() => setHovered(false)}>
+    
+      <div style={{
+      width: 38, height: 38, borderRadius: 12, flexShrink: 0,
+      background: hovered ? `${hoverColor}20` : `${P.honeyLight}30`,
+      border: `1px solid ${hovered ? hoverColor : P.honeyLight}`,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontSize: 17, transition: 'all 0.2s'
+    }}>{icon}</div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p style={{ fontFamily: "'Caveat', cursive", fontSize: 11, color: P.textLight, textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 1 }}>{label}</p>
+        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 16, fontWeight: 600, color: hovered ? hoverColor : P.text, transition: 'color 0.2s', lineHeight: 1.3 }}>{value}</p>
+        {(isWhatsapp || isLocation || isCalendar) &&
+      <p style={{ fontFamily: "'Caveat', cursive", fontSize: 11, color: hovered ? hoverColor : P.tanLight, marginTop: 1, transition: 'color 0.2s' }}>
+            {isWhatsapp ? 'Confirmar por WhatsApp' : isLocation ? 'Ver en Google Maps' : 'Guardar en calendario'}
+          </p>
+      }
+      </div>
+      {(isWhatsapp || isLocation || isCalendar) &&
+    <div style={{
+      width: 28, height: 28, borderRadius: '50%',
+      background: hovered ? hoverColor : `${hoverColor}20`,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      transition: 'all 0.2s', flexShrink: 0
+    }}>
+          {isWhatsapp && <svg width="14" height="14" viewBox="0 0 24 24" fill={hovered ? 'white' : hoverColor}><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" /><path d="M12 0C5.373 0 0 5.373 0 12c0 2.108.549 4.086 1.508 5.805L0 24l6.374-1.487A11.947 11.947 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.804 9.804 0 01-5.001-1.368l-.36-.214-3.724.869.935-3.618-.235-.372A9.808 9.808 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12 17.43 21.818 12 21.818z" /></svg>}
+          {isLocation && <svg width="14" height="14" viewBox="0 0 24 24" fill={hovered ? 'white' : hoverColor}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" /></svg>}
+          {isCalendar && <svg width="14" height="14" viewBox="0 0 24 24" fill={hovered ? 'white' : hoverColor}><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" /></svg>}
+        </div>
+    }
+    </div>;
+
+
+  if (isWhatsapp) return <a href={buildWhatsappUrl(value, babyName)} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'block' }}>{inner}</a>;
+  if (isLocation) return <a href={locationUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'block' }}>{inner}</a>;
+  if (isCalendar) return <a href={buildIcsUrl()} download={`baby-shower.ics`} style={{ textDecoration: 'none', display: 'block' }}>{inner}</a>;
+  return <div>{inner}</div>;
+}
+
+// ── Main Card ─────────────────────────────────────────────────────
+
+function InvitationCard({ tweaks, invitado }) {
+  return (
+    <div style={{
+      width: '100%', maxWidth: 600,
+      background: P.cream,
+      borderRadius: 28,
+      overflow: 'hidden',
+      boxShadow: '0 8px 60px rgba(92,74,53,0.18), 0 2px 8px rgba(92,74,53,0.08)',
+      animation: 'fadeInUp 0.7s ease both',
+      position: 'relative'
+    }}>
+
+      {/* ── Personalized greeting ── */}
+      {invitado && (
+        <div style={{
+          textAlign: 'center', padding: '14px 24px 10px',
+          borderBottom: `1px solid ${P.sky}55`,
+          background: `linear-gradient(135deg, ${P.sky}22, ${P.honey}22)`
+        }}>
+          <p style={{
+            fontFamily: "'Caveat', cursive", fontSize: 17,
+            color: P.sageDark, letterSpacing: 0.3
+          }}>Esta invitación es para ti, <strong>{invitado}</strong> 🌿</p>
+        </div>
+      )}
+
+      {/* ── Hero image: garden ── */}
+      <div style={{ position: 'relative', height: 300, overflow: 'hidden' }}>
+        <img
+          src="pooh-garden.png"
+          alt="Winnie Pooh en el jardín"
+          style={{ width: '100%', height: '100%', objectPosition: 'center 90%', display: 'block', objectFit: "cover" }} />
+        
+        {/* Soft gradient overlay */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(to bottom, rgba(253,248,240,0) 20%, rgba(253,248,240,0.85) 70%, rgba(253,248,240,1) 100%)'
+        }} />
+        {/* Title over image */}
+        <div style={{ position: 'absolute', bottom: -8, left: 0, right: 0, textAlign: 'center', padding: '0 16px 16px' }}>
+          <p style={{
+            fontFamily: "'Caveat', cursive", fontSize: 15,
+            color: P.tanLight, letterSpacing: 2, textTransform: 'uppercase',
+            marginBottom: 2
+          }}>ESTÁS INVITADO/A A UN</p>
+          <h1 style={{
+            fontFamily: "'Cormorant Garamond', serif",
+            fontSize: 52, fontWeight: 300, fontStyle: 'italic',
+            color: P.text, lineHeight: 1,
+            textShadow: '0 1px 8px rgba(253,248,240,0.8)'
+          }}>Baby Shower</h1>
+        </div>
+      </div>
+
+      {/* ── Subtitle ── */}
+      <div style={{ textAlign: 'center', padding: '10px 24px 0' }}>
+        <p style={{
+          fontFamily: "'Caveat', cursive", fontSize: 18,
+          color: P.roseDark, letterSpacing: 0.5,
+          animation: 'shimmerSoft 3s ease-in-out infinite'
+        }}>
+
+        </p>
+      </div>
+
+      {/* ── Pooh with Hunny + bees ── */}
+      <div style={{
+        display: 'flex', justifyContent: 'center', alignItems: 'flex-end',
+        padding: '4px 24px 0', gap: 0, position: 'relative'
+      }}>
+        {/* Bee left */}
+        <div style={{ position: 'absolute', left: 52, top: 10, animation: 'beeWander 5s ease-in-out infinite' }}>
+          <TinyBee size={20} />
+        </div>
+        {/* Dashed path left */}
+        <div style={{ position: 'absolute', left: 24, top: 20 }}>
+          <DashedPath width={80} />
+        </div>
+        {/* Bee right */}
+        <div style={{ position: 'absolute', right: 48, top: 4, animation: 'beeWander 4s ease-in-out infinite 1s' }}>
+          <TinyBee size={18} />
+        </div>
+        {/* Main Pooh image */}
+        <div style={{ animation: 'floatGently 5s ease-in-out infinite' }}>
+          <img
+            src="pooh-hunny-nobg.png"
+            alt="Winnie Pooh con su tarro de miel"
+            style={{ display: 'block', width: "350px", height: "350px", objectFit: "cover" }} />
+          
+        </div>
+      </div>
+
+      {/* ── Baby name section ── */}
+      <div style={{ ...{
+          margin: '8px 28px 0',
+          textAlign: 'center',
+          padding: '20px 24px 18px',
+          background: `linear-gradient(135deg, ${P.sky}55 0%, ${P.sky}33 100%)`,
+          borderRadius: 20,
+          border: `1px solid ${P.sky}88`,
+          position: 'relative', overflow: 'hidden'
+        }, border: "1px solid rgb(180, 203, 242)" }}>
+        {/* Decorative sprigs */}
+        <div style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)' }}>
+          <Sprig color={P.sage} size={22} />
+        </div>
+        <div style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)' }}>
+          <Sprig color={P.sage} size={22} flip />
+        </div>
+        <p style={{ fontFamily: "'Caveat', cursive", fontSize: 14, color: P.textLight, marginBottom: 3 }}>
+          Para celebrar la llegada de
+        </p>
+        <h2 style={{
+          fontFamily: "'Cormorant Garamond', serif",
+          fontSize: 46, fontWeight: 600, fontStyle: 'italic',
+          color: P.text, lineHeight: 1.1, marginBottom: 4
+        }}>{tweaks.babyName}</h2>
+        <p style={{ fontFamily: "'Caveat', cursive", fontSize: 14, color: P.textLight }}>
+          Hijo de {tweaks.mamaNombre} &amp; {tweaks.papaNombre}
+        </p>
+      </div>
+
+      {/* ── Floral divider ── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '20px 28px 10px' }}>
+        <div style={{ flex: 1, height: 1, background: `${P.rose}55` }}></div>
+        <FloralDot color={P.rose} size={16} />
+        <FloralDot color={P.honeyLight} size={12} />
+        <FloralDot color={P.rose} size={16} />
+        <div style={{ flex: 1, height: 1, background: `${P.rose}55` }}></div>
+      </div>
+
+      {/* ── Event details ── */}
+      <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <DetailRow icon="📅" label="Fecha" value={tweaks.fecha} tweaks={tweaks} />
+        <DetailRow icon="⏰" label="Hora" value={tweaks.hora} tweaks={tweaks} />
+        <DetailRow icon="📍" label="Lugar" value={tweaks.lugar} isLocation={true} locationUrl={tweaks.locationUrl} tweaks={tweaks} />
+        <DetailRow icon="🗓️" label="Guardar evento" value="Agregar a mi calendario" isCalendar={true} tweaks={tweaks} />
+        <DetailRow icon="📱" label="Confirmar asistencia" value={tweaks.rsvp} isWhatsapp={true} babyName={tweaks.babyName} tweaks={tweaks} invitado={invitado} />
+      </div>
+
+      {/* ── Gift section ── */}
+      <div style={{ margin: '18px 28px 0', padding: '22px 24px', background: P.creamDark, borderRadius: 20, border: `1px solid ${P.rose}44` }}>
+        <div style={{ textAlign: 'center', marginBottom: 14 }}>
+          <p style={{ fontFamily: "'Caveat', cursive", fontSize: 11, color: P.textLight, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 3 }}>Mesa de regalos</p>
+          <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 600, color: P.text }}>¿Qué puedo llevar?</h3>
+        </div>
+        <div style={{ display: 'flex', gap: 12 }}>
+          {/* Sobre */}
+          <div style={{ flex: 1, background: P.cream, borderRadius: 14, padding: '14px 10px', textAlign: 'center', border: `1px solid ${P.honeyLight}55`, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+            <EnvelopeSVG size={44} color={P.honey} />
+            <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 15, fontWeight: 600, color: P.text }}>Sobre</p>
+            <p style={{ fontFamily: "'Caveat', cursive", fontSize: 13, color: P.textLight, lineHeight: 1.4 }}>Un detalle con mucho cariño</p>
+          </div>
+          {/* Divider */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+            <div style={{ width: 1, flex: 1, background: `${P.rose}44` }}></div>
+            <p style={{ fontFamily: "'Caveat', cursive", fontSize: 16, color: P.tanLight }}>ó</p>
+            <div style={{ width: 1, flex: 1, background: `${P.rose}44` }}></div>
+          </div>
+          {/* Regalo */}
+          <div style={{ flex: 1, background: P.cream, borderRadius: 14, padding: '14px 10px', textAlign: 'center', border: `1px solid ${P.rose}55`, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+            <GiftSVG size={44} color={P.roseDark} />
+            <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 15, fontWeight: 600, color: P.text }}>Regalo</p>
+            <p style={{ fontFamily: "'Caveat', cursive", fontSize: 13, color: P.textLight, lineHeight: 1.4 }}>Un regalito del corazón</p>
+          </div>
+        </div>
+        <p style={{ fontFamily: "'Caveat', cursive", fontSize: 14, color: P.textLight, textAlign: 'center', marginTop: 14, lineHeight: 1.5 }}>
+          Tu presencia es nuestro mayor regalo ✨
+        </p>
+      </div>
+
+      {/* ── Quote ── */}
+      <div style={{ margin: '18px 28px 0', padding: '20px 28px', textAlign: 'center', position: 'relative' }}>
+        <div style={{ position: 'absolute', left: 28, top: 14 }}>
+          <Sprig color={P.sage} size={18} />
+        </div>
+        <div style={{ position: 'absolute', right: 28, top: 14 }}>
+          <Sprig color={P.rose} size={18} flip />
+        </div>
+        <p style={{
+          fontFamily: "'Cormorant Garamond', serif",
+          fontStyle: 'italic', fontSize: 18, fontWeight: 300,
+          color: P.tan, lineHeight: 1.7, padding: '0 24px',
+          textWrap: 'pretty'
+        }}>"{tweaks.frase}"</p>
+        <p style={{ fontFamily: "'Caveat', cursive", fontSize: 13, color: P.tanLight, marginTop: 6 }}>— Winnie Pooh</p>
+      </div>
+
+      {/* ── Floral divider ── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '14px 28px 0' }}>
+        <div style={{ flex: 1, height: 1, background: `${P.sage}44` }}></div>
+        <FloralDot color={P.sage} size={14} />
+        <FloralDot color={P.rose} size={12} />
+        <FloralDot color={P.sage} size={14} />
+        <div style={{ flex: 1, height: 1, background: `${P.sage}44` }}></div>
+      </div>
+
+      {/* ── Footer ── */}
+      <div style={{
+        margin: '14px 0 0',
+        padding: '22px 28px 28px',
+        textAlign: 'center',
+        background: `linear-gradient(135deg, ${P.sky}55 0%, ${P.sky}33 100%)`
+      }}>
+        <p style={{
+          fontFamily: "'Cormorant Garamond', serif",
+          fontSize: 21, fontStyle: 'italic', fontWeight: 300,
+          color: P.sageDark, letterSpacing: 0.5
+        }}>Con mucho amor, los esperamos</p>
+        <p style={{ fontFamily: "'Caveat', cursive", fontSize: 15, color: P.sageDark, marginTop: 4, opacity: 0.8 }}>
+          {tweaks.mamaNombre} &amp; {tweaks.papaNombre}
+        </p>
+      </div>
+
+    </div>);
+
+}
+
+// ── App ───────────────────────────────────────────────────────────
+
+function App() {
+  const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const invitado = new URLSearchParams(window.location.search).get('invitado') || '';
+
+  return (
+    <>
+      <InvitationCard tweaks={tweaks} invitado={invitado} />
+      <TweaksPanel title="Personalizar">
+        <TweakSection label="👶 El Bebé">
+          <TweakText label="Nombre del bebé" id="babyName" value={tweaks.babyName} onChange={(v) => setTweak('babyName', v)} />
+        </TweakSection>
+        <TweakSection label="👨‍👩‍👶 Los Papás">
+          <TweakText label="Nombre de mamá" id="mamaNombre" value={tweaks.mamaNombre} onChange={(v) => setTweak('mamaNombre', v)} />
+          <TweakText label="Nombre de papá" id="papaNombre" value={tweaks.papaNombre} onChange={(v) => setTweak('papaNombre', v)} />
+        </TweakSection>
+        <TweakSection label="📅 Evento">
+          <TweakText label="Fecha" id="fecha" value={tweaks.fecha} onChange={(v) => setTweak('fecha', v)} />
+          <TweakText label="Hora" id="hora" value={tweaks.hora} onChange={(v) => setTweak('hora', v)} />
+          <TweakText label="Lugar" id="lugar" value={tweaks.lugar} onChange={(v) => setTweak('lugar', v)} />
+          <TweakText label="Link ubicación" id="locationUrl" value={tweaks.locationUrl} onChange={(v) => setTweak('locationUrl', v)} />
+          <TweakText label="RSVP / Contacto" id="rsvp" value={tweaks.rsvp} onChange={(v) => setTweak('rsvp', v)} />
+          <TweakText label="Fecha calendario (YYYYMMDD)" id="calendarFecha" value={tweaks.calendarFecha} onChange={(v) => setTweak('calendarFecha', v)} />
+          <TweakText label="Hora calendario (HHMM)" id="calendarHora" value={tweaks.calendarHora} onChange={(v) => setTweak('calendarHora', v)} />
+          <TweakText label="Duración (minutos)" id="calendarDuracion" value={tweaks.calendarDuracion} onChange={(v) => setTweak('calendarDuracion', v)} />
+        </TweakSection>
+        <TweakSection label="💬 Frase">
+          <TweakText label="Frase de Winnie Pooh" id="frase" value={tweaks.frase} onChange={(v) => setTweak('frase', v)} />
+        </TweakSection>
+      </TweaksPanel>
+    </>);
+
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
